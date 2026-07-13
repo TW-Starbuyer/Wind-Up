@@ -22,7 +22,7 @@ Wind-Up is a 3D game engine with a focus on radical modularity, experimental gam
 The engine currently features an SDL3-GPU renderer, FLECS entity-component system, and an ImGUI based UI among others.
 
 ##### Planned Features:
-Custom Vulkan renderer, Jolt physics system, full multithreading, full game level editor, among others.
+Custom Vulkan renderer, Jolt physics system, full multithreading, full game level editor, and Lua scripting among others.
 
 ##### Assets
 Secret Area-52 Room - https://skfb.ly/oLtSy
