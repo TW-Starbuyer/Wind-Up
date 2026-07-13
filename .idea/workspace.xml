@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="BackendCodeEditorMiscSettings">
-    <option name="/Default/Environment/Hierarchy/GeneratedFilesCacheKey/Timestamp/@EntryValue" value="24" type="long" />
+    <option name="/Default/Environment/Hierarchy/GeneratedFilesCacheKey/Timestamp/@EntryValue" value="9" type="long" />
     <option name="/Default/Housekeeping/FeatureSuggestion/FeatureSuggestionManager/DisabledSuggesters/=SwitchToGoToActionSuggester/@EntryIndexedValue" value="true" type="bool" />
     <option name="/Default/Housekeeping/GlobalSettingsUpgraded/IsUpgraded/@EntryValue" value="true" type="bool" />
     <option name="/Default/RiderDebugger/RiderRestoreDecompile/RestoreDecompileSetting/@EntryValue" value="false" type="bool" />
@@ -21,7 +21,6 @@
   <component name="CMakeRunConfigurationManager">
     <generated>
       <config projectName="Wind-Up" targetName="NightlyBuild" folderName="CTestDashboardTargets" />
-      <config projectName="Wind-Up" targetName="ExperimentalUpdate" folderName="CTestDashboardTargets" />
       <config projectName="Wind-Up" targetName="NightlyCoverage" folderName="CTestDashboardTargets" />
       <config projectName="Wind-Up" targetName="ExperimentalBuild" folderName="CTestDashboardTargets" />
       <config projectName="Wind-Up" targetName="NightlySubmit" folderName="CTestDashboardTargets" />
@@ -33,32 +32,33 @@
       <config projectName="Wind-Up" targetName="NightlyConfigure" folderName="CTestDashboardTargets" />
       <config projectName="Wind-Up" targetName="Wind-Up" />
       <config projectName="Wind-Up" targetName="SDL3_test" />
-      <config projectName="Wind-Up" targetName="yaml-cpp" />
       <config projectName="Wind-Up" targetName="ContinuousStart" folderName="CTestDashboardTargets" />
       <config projectName="Wind-Up" targetName="ContinuousMemCheck" folderName="CTestDashboardTargets" />
-      <config projectName="Wind-Up" targetName="Continuous" folderName="CTestDashboardTargets" />
-      <config projectName="Wind-Up" targetName="glm" />
-      <config projectName="Wind-Up" targetName="ExperimentalSubmit" folderName="CTestDashboardTargets" />
       <config projectName="Wind-Up" targetName="NightlyUpdate" folderName="CTestDashboardTargets" />
       <config projectName="Wind-Up" targetName="copy_configs" />
       <config projectName="Wind-Up" targetName="NightlyMemCheck" folderName="CTestDashboardTargets" />
       <config projectName="Wind-Up" targetName="Experimental" folderName="CTestDashboardTargets" />
-      <config projectName="Wind-Up" targetName="Nightly" folderName="CTestDashboardTargets" />
       <config projectName="Wind-Up" targetName="compile_shaders" />
       <config projectName="Wind-Up" targetName="ExperimentalStart" folderName="CTestDashboardTargets" />
       <config projectName="Wind-Up" targetName="copy_assets" />
-      <config projectName="Wind-Up" targetName="imgui" />
       <config projectName="Wind-Up" targetName="ContinuousConfigure" folderName="CTestDashboardTargets" />
       <config projectName="Wind-Up" targetName="NightlyStart" folderName="CTestDashboardTargets" />
+      <config projectName="Wind-Up" targetName="ExperimentalConfigure" folderName="CTestDashboardTargets" />
+      <config projectName="Wind-Up" targetName="tinygltf" />
+      <config projectName="Wind-Up" targetName="ContinuousSubmit" folderName="CTestDashboardTargets" />
+      <config projectName="Wind-Up" targetName="ExperimentalUpdate" folderName="CTestDashboardTargets" />
+      <config projectName="Wind-Up" targetName="yaml-cpp" />
+      <config projectName="Wind-Up" targetName="Continuous" folderName="CTestDashboardTargets" />
+      <config projectName="Wind-Up" targetName="glm" />
+      <config projectName="Wind-Up" targetName="ExperimentalSubmit" folderName="CTestDashboardTargets" />
+      <config projectName="Wind-Up" targetName="Nightly" folderName="CTestDashboardTargets" />
+      <config projectName="Wind-Up" targetName="imgui" />
       <config projectName="Wind-Up" targetName="flecs_static" />
       <config projectName="Wind-Up" targetName="ContinuousUpdate" folderName="CTestDashboardTargets" />
       <config projectName="Wind-Up" targetName="ContinuousTest" folderName="CTestDashboardTargets" />
       <config projectName="Wind-Up" targetName="SDL_uclibc" />
       <config projectName="Wind-Up" targetName="NightlyMemoryCheck" folderName="CTestDashboardTargets" />
-      <config projectName="Wind-Up" targetName="ExperimentalConfigure" folderName="CTestDashboardTargets" />
       <config projectName="Wind-Up" targetName="SDL3-shared" />
-      <config projectName="Wind-Up" targetName="tinygltf" />
-      <config projectName="Wind-Up" targetName="ContinuousSubmit" folderName="CTestDashboardTargets" />
       <config projectName="Wind-Up" targetName="ExperimentalMemCheck" folderName="CTestDashboardTargets" />
     </generated>
   </component>
@@ -575,7 +575,7 @@
       <workItem from="1783922869866" duration="87000" />
       <workItem from="1783922965541" duration="80000" />
       <workItem from="1783923070883" duration="563000" />
-      <workItem from="1783923647831" duration="12000" />
+      <workItem from="1783923647831" duration="686000" />
     </task>
     <task id="LOCAL-00001" summary="Initial commit">
       <option name="closed" value="true" />
@@ -593,7 +593,15 @@
       <option name="project" value="LOCAL" />
       <updated>1783921699872</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="Added Demo">
+      <option name="closed" value="true" />
+      <created>1783924319314</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1783924319314</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -607,6 +615,7 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Initial commit" />
-    <option name="LAST_COMMIT_MESSAGE" value="Initial commit" />
+    <MESSAGE value="Added Demo" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added Demo" />
   </component>
 </project>
