@@ -7,16 +7,16 @@ Wind-Up is a 3D game engine with a focus on radical modularity, experimental gam
 
 
 ##### Current Modules:
-devices
-ecs
-levels
-profiler
-renderer
-resources
-threading
-time
-user_io
-windowing
+- devices
+- ecs
+- levels
+- profiler
+- renderer
+- resources
+- threading
+- time
+- user_io
+- windowing
 
 ##### Current Features:
 The engine currently features an SDL3-GPU renderer, FLECS entity-component system, and an ImGUI based UI among others.
