@@ -1,3 +1,4 @@
+![Wind-Up Engine](src/assets/images/wind-up-engine.png)
 ### WARNING: Currently in pre-release, not ready for full application development. License TBD, not currently available for application licensing.
 
 Wind-Up is a 3D game engine with a focus on radical modularity, experimental game development, and high-performance. The engine is currently an independent project by @TW-Starbuyer. 
