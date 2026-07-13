@@ -23,3 +23,6 @@ The engine currently features an SDL3-GPU renderer, FLECS entity-component syste
 
 ##### Planned Features:
 Custom Vulkan renderer, Jolt physics system, full multithreading, full game level editor, among others.
+
+##### Assets
+Secret Area-52 Room - https://skfb.ly/oLtSy
