@@ -1,0 +1,43 @@
+level_name: room
+
+shader_descs:
+  - shader_name: mesh
+    vert_shader_path: assets/shaders/mesh.vert.spv
+    frag_shader_path: assets/shaders/mesh.frag.spv
+
+pipelines_descs:
+  - pipeline_name: mesh
+    shader_name: mesh
+
+entity_descs:
+  - entity_name: editor_camera
+    model:
+      model_filename: editor_camera
+      is_visible: true
+      use_pitch: true
+    transform:
+      position: [ 0.0, -15.0, -110.0 ]
+      rotation: [ 0.0, 0.0, -90.0 ]
+      scale: [ 5.0, 5.0, 5.0 ]
+    camera:
+      free: true
+      fov_radians: 1.0472
+      near_plane: 0.1
+      far_plane: 10000.0
+      active: true
+      direction: [ 0.0, 1.0, 0.0 ]
+    controllable:
+      active: true
+      speed: 100.0
+    velocity:
+      velocity: [ 0.0, 0.0, 0.0 ]
+
+  - entity_name: room
+    model:
+      model_filename: room
+      is_visible: true
+      use_pitch: false
+    transform:
+      position: [0.0, -15.0, -93.0]
+      rotation: [-90.0, 0.0, 0.0]
+      scale: [10.0, 10.0, 10.0]
