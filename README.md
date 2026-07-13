@@ -5,16 +5,16 @@
 Wind-Up is a 3D game engine currently in early development with a focus on radical modularity, experimental game development, and broad adoptability. The engine is currently an independent project by @TW-Starbuyer.
 
 ##### Current Modules:
-🎮 Devices
-👾 ECS (Flecs)
-🏰 Levels
-📈 Profiler
-🎥 Renderer (SDL GPU)
-💾 Resources
-💻 Threading
-🕰️ Time
-⌨️ User I/O (SDL3)
-🗔 Windowing (SDL3)
+- 🎮 Devices
+- 👾 ECS (Flecs)
+- 🏰 Levels
+- 📈 Profiler
+- 🎥 Renderer (SDL GPU)
+- 💾 Resources
+- 💻 Threading
+- 🕰️ Time
+- ⌨️ User I/O (SDL3)
+- 🗔 Windowing (SDL3)
 
 ##### Current Features:
 The engine currently features an SDL3-GPU renderer, FLECS entity-component system, and an ImGUI based UI among others.
