@@ -1,5 +1,4 @@
 ![Wind-Up Engine](src/assets/images/wind-up-engine.png)
-![Wind-Up Engine](src/assets/images/wind-up-engine-screenshot.png)
 
 ### WARNING: Currently in pre-release, not ready for full application development. License TBD, not currently available for application licensing.
 
