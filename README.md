@@ -5,22 +5,27 @@
 Wind-Up is a 3D game engine currently in early development with a focus on radical modularity, experimental game development, and broad adoptability. The engine is currently an independent project by @TW-Starbuyer.
 
 ##### Current Modules:
-- devices
-- ecs
-- levels
-- profiler
-- renderer
-- resources
-- threading
-- time
-- user_io
-- windowing
+🎮 Devices
+👾 ECS (Flecs)
+🏰 Levels
+📈 Profiler
+🎥 Renderer (SDL GPU)
+💾 Resources
+💻 Threading
+🕰️ Time
+⌨️ User I/O (SDL3)
+🗔 Windowing (SDL3)
 
 ##### Current Features:
 The engine currently features an SDL3-GPU renderer, FLECS entity-component system, and an ImGUI based UI among others.
 
-##### Planned Features:
-Custom Vulkan renderer, Jolt physics system, full multithreading, full game level editor, and Lua scripting among others.
+##### Developer Roadmap:
+☐ Lua scripting (probably via Sol3 library)
+☐ Interactive runtime level editor
+☐ Jolt physics library integration
+☐ Expanding multithreading implementation across engine
+☐ First demo game release on itch.io
+☐ Develop new custom Vulkan renderer module.
 
 ##### Assets
 Secret Area-52 Room - https://skfb.ly/oLtSy
