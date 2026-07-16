@@ -1,13 +1,18 @@
 #pragma once
 
-
+// STL INCLUDES
 #include <iostream>
 #include <string>
 #include <vector>
 #include <mutex>
+
+// THIRD-PARTY INCLUDES
 #include <glm/glm.hpp>
 
+// COMMON INCLUDES
 #include "configs.hpp"
+
+//----------------------------------------------------------------------------------------------
 
 enum class WINDUP_LogLevel { CmdResult, Info, TaskResult, Warning, Error };
 

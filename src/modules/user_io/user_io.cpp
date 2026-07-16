@@ -10,6 +10,9 @@
 
 void WINDUP_UserIO::init(WINDUP_EngineConfigs& arg_engine_configs, WINDUP_Threading& arg_threading)
 {
+	engine_configs = &arg_engine_configs;
+	threading = &arg_threading;
+
 	status.f_is_init = true;
 
 	WINDUP_Logger::task_result("User I/O", "Initialization", status.f_is_init);

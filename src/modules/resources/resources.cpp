@@ -9,78 +9,11 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/quaternion.hpp>
 
+#include "color_schemes.hpp"
+
 #include "resources.hpp"
 
 #include <fstream>
-
-
-namespace
-{
-    struct ColorEntry { const char *name; ImGuiCol index; };
-
-    constexpr std::array color_table{
-        ColorEntry{"Text",                       ImGuiCol_Text},
-        ColorEntry{"TextDisabled",               ImGuiCol_TextDisabled},
-        ColorEntry{"WindowBg",                   ImGuiCol_WindowBg},
-        ColorEntry{"ChildBg",                    ImGuiCol_ChildBg},
-        ColorEntry{"PopupBg",                    ImGuiCol_PopupBg},
-        ColorEntry{"Border",                     ImGuiCol_Border},
-        ColorEntry{"BorderShadow",               ImGuiCol_BorderShadow},
-        ColorEntry{"FrameBg",                    ImGuiCol_FrameBg},
-        ColorEntry{"FrameBgHovered",             ImGuiCol_FrameBgHovered},
-        ColorEntry{"FrameBgActive",              ImGuiCol_FrameBgActive},
-        ColorEntry{"TitleBg",                    ImGuiCol_TitleBg},
-        ColorEntry{"TitleBgActive",              ImGuiCol_TitleBgActive},
-        ColorEntry{"TitleBgCollapsed",           ImGuiCol_TitleBgCollapsed},
-        ColorEntry{"MenuBarBg",                  ImGuiCol_MenuBarBg},
-        ColorEntry{"ScrollbarBg",                ImGuiCol_ScrollbarBg},
-        ColorEntry{"ScrollbarGrab",              ImGuiCol_ScrollbarGrab},
-        ColorEntry{"ScrollbarGrabHovered",       ImGuiCol_ScrollbarGrabHovered},
-        ColorEntry{"ScrollbarGrabActive",        ImGuiCol_ScrollbarGrabActive},
-        ColorEntry{"CheckMark",                  ImGuiCol_CheckMark},
-        ColorEntry{"SliderGrab",                 ImGuiCol_SliderGrab},
-        ColorEntry{"SliderGrabActive",           ImGuiCol_SliderGrabActive},
-        ColorEntry{"Button",                     ImGuiCol_Button},
-        ColorEntry{"ButtonHovered",              ImGuiCol_ButtonHovered},
-        ColorEntry{"ButtonActive",               ImGuiCol_ButtonActive},
-        ColorEntry{"Header",                     ImGuiCol_Header},
-        ColorEntry{"HeaderHovered",              ImGuiCol_HeaderHovered},
-        ColorEntry{"HeaderActive",               ImGuiCol_HeaderActive},
-        ColorEntry{"Separator",                  ImGuiCol_Separator},
-        ColorEntry{"SeparatorHovered",           ImGuiCol_SeparatorHovered},
-        ColorEntry{"SeparatorActive",            ImGuiCol_SeparatorActive},
-        ColorEntry{"ResizeGrip",                 ImGuiCol_ResizeGrip},
-        ColorEntry{"ResizeGripHovered",          ImGuiCol_ResizeGripHovered},
-        ColorEntry{"ResizeGripActive",           ImGuiCol_ResizeGripActive},
-        ColorEntry{"InputTextCursor",            ImGuiCol_InputTextCursor},
-        ColorEntry{"TabHovered",                 ImGuiCol_TabHovered},
-        ColorEntry{"Tab",                        ImGuiCol_Tab},
-        ColorEntry{"TabSelected",                ImGuiCol_TabSelected},
-        ColorEntry{"TabSelectedOverline",        ImGuiCol_TabSelectedOverline},
-        ColorEntry{"TabDimmed",                  ImGuiCol_TabDimmed},
-        ColorEntry{"TabDimmedSelected",          ImGuiCol_TabDimmedSelected},
-        ColorEntry{"TabDimmedSelectedOverline",  ImGuiCol_TabDimmedSelectedOverline},
-        ColorEntry{"PlotLines",                  ImGuiCol_PlotLines},
-        ColorEntry{"PlotLinesHovered",           ImGuiCol_PlotLinesHovered},
-        ColorEntry{"PlotHistogram",              ImGuiCol_PlotHistogram},
-        ColorEntry{"PlotHistogramHovered",       ImGuiCol_PlotHistogramHovered},
-        ColorEntry{"TableHeaderBg",              ImGuiCol_TableHeaderBg},
-        ColorEntry{"TableBorderStrong",          ImGuiCol_TableBorderStrong},
-        ColorEntry{"TableBorderLight",           ImGuiCol_TableBorderLight},
-        ColorEntry{"TableRowBg",                 ImGuiCol_TableRowBg},
-        ColorEntry{"TableRowBgAlt",              ImGuiCol_TableRowBgAlt},
-        ColorEntry{"TextLink",                   ImGuiCol_TextLink},
-        ColorEntry{"TextSelectedBg",             ImGuiCol_TextSelectedBg},
-        ColorEntry{"TreeLines",                  ImGuiCol_TreeLines},
-        ColorEntry{"DragDropTarget",             ImGuiCol_DragDropTarget},
-        ColorEntry{"DragDropTargetBg",           ImGuiCol_DragDropTargetBg},
-        ColorEntry{"UnsavedMarker",              ImGuiCol_UnsavedMarker},
-        ColorEntry{"NavCursor",                  ImGuiCol_NavCursor},
-        ColorEntry{"NavWindowingHighlight",      ImGuiCol_NavWindowingHighlight},
-        ColorEntry{"NavWindowingDimBg",          ImGuiCol_NavWindowingDimBg},
-        ColorEntry{"ModalWindowDimBg",           ImGuiCol_ModalWindowDimBg},
-    };
-}
 
 void WINDUP_Resources::init(WINDUP_EngineConfigs& arg_configs, WINDUP_Threading& arg_threading, WINDUP_Devices &arg_devices)
 {
@@ -92,9 +25,25 @@ void WINDUP_Resources::init(WINDUP_EngineConfigs& arg_configs, WINDUP_Threading&
 
 void WINDUP_Resources::deinit()
 {
-	status.f_is_deinit = true;
+    SDL_WaitForGPUIdle(devices->get_gpu_device());
 
-	WINDUP_Logger::task_result("Resources", "Deinitialization", status.f_is_deinit);
+    std::vector<WINDUP_MeshHandle> mesh_handles;
+    for (auto &[handle, mesh] : meshes_cache) mesh_handles.push_back(handle);
+    for (auto &handle : mesh_handles) destroy_mesh(handle);
+
+    std::vector<WINDUP_TextureHandle> texture_handles;
+    for (auto &[handle, texture] : textures_cache) texture_handles.push_back(handle);
+    for (auto &handle : texture_handles) destroy_texture(handle);
+
+    std::vector<WINDUP_ShaderHandle> shader_handles;
+    for (auto &[handle, shader] : shaders_cache) shader_handles.push_back(handle);
+    for (auto &handle : shader_handles) destroy_shader(handle);
+
+    materials_cache.clear();
+    models_cache.clear();
+
+    status.f_is_deinit = true;
+    WINDUP_Logger::task_result("Resources", "Deinitialization", status.f_is_deinit);
 }
 
 std::optional<YAML::Node> WINDUP_Resources::load_yaml(const std::string &path)
@@ -118,25 +67,24 @@ std::optional<YAML::Node> WINDUP_Resources::load_yaml(const std::string &path)
 
 bool WINDUP_Resources::load_style(const std::string &path, ImGuiStyle &style)
 {
-	auto yaml_opt = load_yaml(path);   // reuse the existing member
+	auto yaml_opt = load_yaml(path);
 	if (!yaml_opt)
 	{
-		WINDUP_Logger::task_result("Load Style [" + path + "]", "FAILED - load error", 1);
+		WINDUP_Logger::task_result("Load Style [" + path + "]", "FAILED: load error", 1);
 		return false;
 	}
 
 	const YAML::Node colors = (*yaml_opt)["colors"];
 	if (!colors || !colors.IsMap())
 	{
-		WINDUP_Logger::task_result("Load Style [" + path + "]", "FAILED - no 'colors' map", 1);
+		WINDUP_Logger::task_result("Load Style [" + path + "]", "FAILED: no 'colors' map", 1);
 		return false;
 	}
 
 	for (const auto &entry : color_table)
 	{
 		const YAML::Node c = colors[entry.name];
-		if (!c || !c.IsSequence() || c.size() < 4)
-			continue;  // missing/malformed — keep the style's existing default
+		if (!c || !c.IsSequence() || c.size() < 4) continue;
 
 		ImVec4 &dst = style.Colors[entry.index];
 		dst.x = c[0].as<float>(dst.x);
@@ -170,7 +118,7 @@ bool WINDUP_Resources::save_style(const std::string &path, const ImGuiStyle &sty
 	std::ofstream file(path);
 	if (!file.is_open())
 	{
-		WINDUP_Logger::task_result("Save Style [" + path + "]", "FAILED - cannot open file", 0);
+		WINDUP_Logger::task_result("Save Style [" + path + "]", "FAILED: cannot open file", 0);
 		return false;
 	}
 	file << root;
@@ -187,10 +135,11 @@ WINDUP_ShaderHandle WINDUP_Resources::instantiate_shader(const WINDUP_ShaderDesc
 
 	// Vertex shader
 	size_t vertex_shader_code_size = 0;
+
 	void *vert_shader_code = SDL_LoadFile(shader_desc.vert_path.c_str(), &vertex_shader_code_size);
 	if (!vert_shader_code)
 	{
-		WINDUP_Logger::task_result("Load Vertex Shader [" + shader_desc.vert_path + "]", "FAILED - file not found", 0);
+		WINDUP_Logger::task_result("Load Vertex Shader [" + shader_desc.vert_path + "]", "FAILED: file not found", 0);
 		return {};
 	}
 
@@ -209,14 +158,18 @@ WINDUP_ShaderHandle WINDUP_Resources::instantiate_shader(const WINDUP_ShaderDesc
 	if (!shader.vert)
 	{
 		WINDUP_Logger::task_result("Create Vertex Shader [" + shader_desc.vert_path + "]",
-		                       std::string("FAILED - ") + SDL_GetError(), 0);
+		                       std::string("FAILED") + SDL_GetError(), 0);
+		return {};
 	}
 
+	// Fragment shader
 	size_t fragment_shader_code_size = 0;
+
 	void *code = SDL_LoadFile(shader_desc.frag_path.c_str(), &fragment_shader_code_size);
 	if (!code)
 	{
-		WINDUP_Logger::task_result("Load Fragment Shader [" + shader_desc.frag_path + "]", "FAILED - file not found", 0);
+		WINDUP_Logger::task_result("Load Fragment Shader [" + shader_desc.frag_path + "]", "FAILED: file not found", 0);
+		SDL_ReleaseGPUShader(gpu_device, shader.vert);
 		return {};
 	}
 
@@ -235,16 +188,9 @@ WINDUP_ShaderHandle WINDUP_Resources::instantiate_shader(const WINDUP_ShaderDesc
 	if (!shader.frag)
 	{
 		WINDUP_Logger::task_result("Create Fragment Shader [" + shader_desc.frag_path + "]",
-							   std::string("FAILED - ") + SDL_GetError(), 0);
+							   std::string("FAILED: ") + SDL_GetError(), 0);
+		SDL_ReleaseGPUShader(gpu_device, shader.vert);
 		return {};
-	}
-
-	if (!shader.vert || !shader.frag)
-	{
-		if (shader.vert) SDL_ReleaseGPUShader(gpu_device, shader.vert);
-		if (shader.frag) SDL_ReleaseGPUShader(gpu_device, shader.frag);
-		WINDUP_Logger::task_result("Load Shader [" + shader_desc.name + "]", "FAILED", 0);
-		return {}; // invalid handle - callers must check valid()
 	}
 
 	WINDUP_ShaderHandle handle = shaders_cache.cache_object(shader_desc.name, shader);
@@ -264,7 +210,7 @@ WINDUP_TextureHandle WINDUP_Resources::instantiate_texture(WINDUP_TextureDesc &t
 		if (!pixels)
 		{
 			WINDUP_Logger::error("Resources",
-			                 std::string("stbi_load failed: ") + full_path + " — " + stbi_failure_reason(), 0);
+			                 std::string("FAILED: stbi_load failed: ") + full_path + " — " + stbi_failure_reason(), 0);
 			return {};
 		}
 
@@ -272,6 +218,7 @@ WINDUP_TextureHandle WINDUP_Resources::instantiate_texture(WINDUP_TextureDesc &t
 		texture_desc.height = h;
 		texture_desc.image_data.assign(pixels, pixels + (size_t) w * h * 4);
 		stbi_image_free(pixels);
+
 	}
 
 	WINDUP_Logger::task_result("Load Texture [" + texture_desc.name
@@ -283,6 +230,7 @@ WINDUP_TextureHandle WINDUP_Resources::instantiate_texture(WINDUP_TextureDesc &t
 
 	WINDUP_TextureHandle handle = textures_cache.cache_object(texture_desc.name, texture);
 	textures_cache.get_by_handle(handle).handle = handle;
+
 	return handle;
 }
 
@@ -291,7 +239,7 @@ WINDUP_MaterialHandle WINDUP_Resources::instantiate_material(const WINDUP_Materi
 	WINDUP_Logger::task_result("Load Material [" + material_desc.name + "] ", "SUCCESS", 1);
 
 	WINDUP_Material material;
-	material.desc = material_desc; // desc now contains base_color_texture handle + base_color
+	material.desc = material_desc;
 
 	WINDUP_MaterialHandle handle = materials_cache.cache_object(material_desc.name, material);
 	materials_cache.get_by_handle(handle).handle = handle;
@@ -305,11 +253,13 @@ WINDUP_MeshHandle WINDUP_Resources::instantiate_mesh(const WINDUP_MeshDesc &mesh
 	WINDUP_MeshHandle mesh_handle = meshes_cache.cache_object(mesh_desc.name, mesh);
 	WINDUP_Mesh &cached_mesh = meshes_cache.get_by_handle(mesh_handle);
 	cached_mesh.handle = mesh_handle;
+
 	return mesh_handle;
 }
 
 WINDUP_ModelHandle WINDUP_Resources::instantiate_model(WINDUP_ModelDesc &model_desc)
 {
+	// Great light library for model loading, not sure I'll need anything more.
 	tinygltf::TinyGLTF tgltf_loader;
 	tinygltf::Model tgltf_model;
 	std::string tgltf_err;
@@ -332,6 +282,8 @@ WINDUP_ModelHandle WINDUP_Resources::instantiate_model(WINDUP_ModelDesc &model_d
 
 	std::unordered_map<int, WINDUP_TextureHandle> source_to_texture;
 
+	// I'm not proud of this function, it's nesting stretches deeper than the grand canyon,
+	// but I will refactor it soon and it will be readable!
 	std::function < void(int, glm::mat4) > process_node = [&](int node_index, glm::mat4 parent_matrix)
 	{
 		if (node_index < 0 || node_index >= (int) tgltf_model.nodes.size()) return;
@@ -453,7 +405,7 @@ WINDUP_ModelHandle WINDUP_Resources::instantiate_model(WINDUP_ModelDesc &model_d
 									if (configs.debug)
 										WINDUP_Logger::warning("Resources",
 										                   "Material '" + mat.name +
-										                   "' image failed to decode, skipping", 1);
+										                   "' FAILED: image failed to decode, skipping", 1);
 								} else
 								{
 									WINDUP_TextureDesc texture_desc{
@@ -468,9 +420,7 @@ WINDUP_ModelHandle WINDUP_Resources::instantiate_model(WINDUP_ModelDesc &model_d
 								}
 							}
 
-							if (texture_handle.valid())
-							{
-								WINDUP_MaterialDesc material_desc{
+							WINDUP_MaterialDesc material_desc{
 									.name = mat.name,
 									.file_path = model_desc.file_path,
 									.base_color_texture = texture_handle,
@@ -479,17 +429,16 @@ WINDUP_ModelHandle WINDUP_Resources::instantiate_model(WINDUP_ModelDesc &model_d
 										mat.pbrMetallicRoughness.baseColorFactor[1],
 										mat.pbrMetallicRoughness.baseColorFactor[2],
 										mat.pbrMetallicRoughness.baseColorFactor[3])
-								};
+							};
 
-								WINDUP_MaterialHandle material_handle = instantiate_material(material_desc);
+							WINDUP_MaterialHandle material_handle = instantiate_material(material_desc);
 
-								if (material_handle.valid())
-								{
-									mesh_desc.material_handle = material_handle;
-								} else
-								{
-									SDL_Log("ERROR: Material instantiation failed for %s", mat.name.c_str());
-								}
+							if (material_handle.valid())
+							{
+								mesh_desc.material_handle = material_handle;
+							} else
+							{
+								SDL_Log("ERROR: Material instantiation failed for %s", mat.name.c_str());
 							}
 						}
 					}
@@ -562,7 +511,7 @@ WINDUP_ModelHandle WINDUP_Resources::instantiate_model(WINDUP_ModelDesc &model_d
 
 	if (tgltf_model.scenes.empty())
 	{
-		WINDUP_Logger::error("Resources", "GLB has no scenes: " + model_desc.name, 0);
+		WINDUP_Logger::error("Resources", "ERROR: GLB has no scenes: " + model_desc.name, 0);
 		return {};
 	}
 
@@ -576,5 +525,56 @@ WINDUP_ModelHandle WINDUP_Resources::instantiate_model(WINDUP_ModelDesc &model_d
 
 	WINDUP_Logger::task_result("Instantiate Model [" + model_desc.name + "]", "SUCCESS", 1);
 	return model_handle;
+}
+
+void WINDUP_Resources::destroy_shader(WINDUP_ShaderHandle handle)
+{
+	if (!shaders_cache.has(handle)) return;
+
+	WINDUP_Shader &shader = shaders_cache.get_by_handle(handle);
+	WINDUP_GPUDevice *gpu_device = devices->get_gpu_device();
+
+	if (shader.vert) SDL_ReleaseGPUShader(gpu_device, shader.vert);
+	if (shader.frag) SDL_ReleaseGPUShader(gpu_device, shader.frag);
+
+	shaders_cache.remove(handle);
+}
+
+void WINDUP_Resources::destroy_texture(WINDUP_TextureHandle handle)
+{
+	if (!textures_cache.has(handle)) return;
+
+	WINDUP_Texture &texture = textures_cache.get_by_handle(handle);
+	WINDUP_GPUDevice *gpu_device = devices->get_gpu_device();
+
+	if (texture.texture)     SDL_ReleaseGPUTexture(gpu_device, texture.texture);
+	if (texture.gpu_sampler) SDL_ReleaseGPUSampler(gpu_device, texture.gpu_sampler);
+
+	textures_cache.remove(handle);
+}
+
+void WINDUP_Resources::destroy_mesh(WINDUP_MeshHandle handle)
+{
+	if (!meshes_cache.has(handle)) return;
+
+	WINDUP_Mesh &mesh = meshes_cache.get_by_handle(handle);
+	WINDUP_GPUDevice *gpu_device = devices->get_gpu_device();
+
+	if (mesh.vert_buffer) SDL_ReleaseGPUBuffer(gpu_device, mesh.vert_buffer);
+	if (mesh.idx_buffer)  SDL_ReleaseGPUBuffer(gpu_device, mesh.idx_buffer);
+
+	meshes_cache.remove(handle);
+}
+
+void WINDUP_Resources::destroy_material(WINDUP_MaterialHandle handle)
+{
+	materials_cache.remove(handle); // Only CPU-side object deletion from the cache needed since it doesn't own
+									// the actual texture objects, hence no GPU-side ownership
+}
+
+void WINDUP_Resources::destroy_model(WINDUP_ModelHandle handle)
+{
+	models_cache.remove(handle); // Only CPU-side object deletion from the cache needed since it doesn't own
+								// the actual mesh objects, hence no GPU-side ownership
 }
 

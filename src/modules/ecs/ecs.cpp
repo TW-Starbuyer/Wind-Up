@@ -1,11 +1,8 @@
 #include "ecs.hpp"
-#include "../../modules/resources/resources.hpp"
 
 void WINDUP_ECS::init(WINDUP_EngineConfigs& arg_engine_configs, WINDUP_Threading& arg_threading)
 {
 	engine_configs = &arg_engine_configs;
-
-	// load_configs(*services->resources, "configs/configs_world.json");
 
 	registry.component<WINDUP_TransformCmpt>();
 	registry.component<WINDUP_VelocityCmpt>();
@@ -21,8 +18,9 @@ void WINDUP_ECS::init(WINDUP_EngineConfigs& arg_engine_configs, WINDUP_Threading
 
 void WINDUP_ECS::deinit()
 {
-	status.f_is_deinit = true;
+	registry = flecs::world(); // Set reg to new instance state so old destructor is called for all entities meeting RAII
 
+	status.f_is_deinit = true;
 	WINDUP_Logger::task_result("ECS", "Deinitialization", status.f_is_deinit);
 }
 

@@ -188,22 +188,6 @@ void Demo::on_io_update()
             (control_mode == WINDUP_ControlMode::Scene)
             || windup->engine_configs->toggle_control_editor_camera;
 
-
-        if (e.type == SDL_EVENT_KEY_DOWN &&
-            (e.key.scancode == SDL_SCANCODE_F1 || e.key.scancode == SDL_SCANCODE_F2))
-        {
-            bool want_editor = (e.key.scancode == SDL_SCANCODE_F1);
-
-
-            if (windup->engine_configs->enable_editor_mode != want_editor)
-            {
-                set_editor_mode(want_editor);
-            }
-
-            continue;
-        }
-
-
         if (e.type == SDL_EVENT_KEY_DOWN || e.type == SDL_EVENT_KEY_UP)
         {
             if (imgui_io.WantCaptureKeyboard) continue;

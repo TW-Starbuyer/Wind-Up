@@ -54,6 +54,18 @@ public:
 		return true;
 	}
 
+	void clear()
+	{
+		objects.clear();
+		handles.clear();
+	}
+
+	size_t size() const { return objects.size(); }
+	auto begin()       { return objects.begin(); }
+	auto begin()       const { return objects.begin(); }
+	auto end()         { return objects.end(); }
+	auto end()         const{ return objects.end(); }
+
 private:
 	WINDUP_CacheStatus status;
 	uint32_t next_id = 0;

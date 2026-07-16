@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vector>
+
 #include "../common/components.hpp"
 
 #include "../common/pipeline.hpp"

@@ -102,24 +102,38 @@ std::optional<WINDUP_ModelCmpt> WINDUP_Levels::parse_model(const YAML::Node &nod
 
 WINDUP_LevelHandle WINDUP_Levels::instantiate_level(const WINDUP_LevelDesc &level_desc)
 {
+    // Return if cache hit.
+    if (levels_cache.has(level_desc.name))
+    {
+        return levels_cache.get_by_name(level_desc.name).handle;
+    }
+
     flecs::world &registry = ecs->get_registry();
 
-    // 1. Shaders: instantiate if not already cached
+    // Initial level object creation and caching.
+    WINDUP_Level level;
+    level.desc = level_desc;
+    WINDUP_LevelHandle handle = levels_cache.cache_object(level_desc.name, level);
+    WINDUP_Level& cached_level = levels_cache.get_by_handle(handle);
+    cached_level.handle = handle;
+
+    // Instantiate shader if not cached, then cache.
     for (const auto &shader_desc: level_desc.shader_descs)
     {
         if (!resources->has_shader(shader_desc.name))
         {
-            resources->instantiate_shader(shader_desc);
+            WINDUP_ShaderHandle shader_handle = resources->instantiate_shader(shader_desc);
+            cached_level.shader_handles.push_back(shader_handle);
         }
     }
 
-    // 2. Pipelines: resolve shader by name
+    // Create pipelines
     for (const auto &pipeline_desc: level_desc.pipelines_descs)
     {
         renderer->create_pipeline(pipeline_desc);
     }
 
-    // 3. Entities
+    // Spawn entities
     registry.defer_begin();
     for (const auto &entity_desc: level_desc.entity_descs)
     {
@@ -163,13 +177,6 @@ WINDUP_LevelHandle WINDUP_Levels::instantiate_level(const WINDUP_LevelDesc &leve
         }
     }
     registry.defer_end();
-
-    // Cache the level and return handle
-    WINDUP_Level level;
-    level.desc = level_desc;
-
-    WINDUP_LevelHandle handle = levels_cache.cache_object(level_desc.name, level);
-    levels_cache.get_by_handle(handle).handle = handle;
 
     // Set as active level
     active_level = handle;

@@ -1,23 +1,29 @@
 #pragma once
 
+// STL INCLUDES
 #include <optional>
+
+// THIRD-PARTY INCLUDES
 #include <boost/pfr.hpp>
 #include <yaml-cpp/yaml.h>
 
+// CORE
 #include "../../logger/logger.hpp"
+
+// MODULES INCLUDES
+#include "../../modules/resources/resources.hpp"
+#include "../../modules/renderer/renderer.hpp"
+#include "../../modules/ecs/ecs.hpp"
+
+// COMMON INCLUDES
+#include "../../common/context.hpp"
+#include "../../common/level.hpp"
+#include "../../common/shader.hpp"
 #include "../../common/configs.hpp"
 #include "../../common/module.hpp"
 #include "../../common/cache.hpp"
 
-#include "../../modules/resources/resources.hpp"
-
-#include "../../modules/renderer/renderer.hpp"
-#include "../../modules/ecs/ecs.hpp"
-
-#include "../../common/context.hpp"
-
-#include "../../common/level.hpp"
-#include "../../common/shader.hpp"
+//----------------------------------------------------------------------------------------------
 
 class WINDUP_Levels : public WINDUP_Module
 {

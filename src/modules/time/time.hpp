@@ -1,19 +1,25 @@
 #pragma once
 
+// STL INCLUDES
 #include <iostream>
+
+// THIRD-PARTY INCLUDES
 #include <SDL3/SDL.h>
 
+// CORE INCLUDES
+#include "../logger/logger.hpp"
+
+// MODULE INCLUDES
 #include "../modules/threading/threading.hpp"
-
-#include "../../common/configs.hpp"
-#include "../../common/status.hpp"
-
 #include "../../modules/resources/resources.hpp"
 
+// COMMON INCLUDES
+#include "../../common/configs.hpp"
+#include "../../common/status.hpp"
 #include "../../common/math.hpp"
-
 #include "../../common/module.hpp"
 
+//----------------------------------------------------------------------------------------------
 
 class WINDUP_Time : public WINDUP_Module
 {
@@ -37,6 +43,5 @@ class WINDUP_Time : public WINDUP_Module
 		float delta_time = 0.0f;
 		uint64_t last_tick = 0;
 		uint64_t start_tick = 0;
-
 };
 

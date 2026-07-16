@@ -1,9 +1,20 @@
 #pragma once
 
+// STL INCLUDES
+
+// THIRD-PARTY INCLUDES
+#include <SDL3/SDL.h>
+
+// CORE INCLUDES
+#include "../logger/logger.hpp"
+
+// MODULE INCLUDES
+
+// COMMON INCLUDES
 #include "../../common/module.hpp"
 #include "../../common/configs.hpp"
 
-#include <SDL3/SDL.h>
+//----------------------------------------------------------------------------------------------
 
 class WINDUP_UserIO : public WINDUP_Module
 {
@@ -18,5 +29,6 @@ class WINDUP_UserIO : public WINDUP_Module
 
 	private:
 		WINDUP_EngineConfigs* engine_configs = nullptr;
+		WINDUP_Threading* threading = nullptr;
 };
 

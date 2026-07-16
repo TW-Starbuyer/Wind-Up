@@ -11,6 +11,7 @@ int main()
 	
 	windup_engine.load_app(app);
 	windup_engine.run();
+	windup_engine.deinit();
 
 	delete app;
 	return 0;

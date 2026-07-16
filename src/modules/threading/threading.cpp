@@ -9,14 +9,19 @@ void WINDUP_Threading::init(WINDUP_EngineConfigs& arg_engine_configs)
 
 void WINDUP_Threading::deinit()
 {
-	std::lock_guard<std::mutex> lock(mtx);
-
-	for (auto& t : threads)
+	std::vector<WINDUP_Thread> threads_to_join;
 	{
-		if (t.handle.joinable())
+		std::lock_guard<std::mutex> lock(mtx);
+		threads_to_join = std::move(threads);
+		threads.clear();
+	}
+
+	for (auto& thread : threads_to_join)
+	{
+		if (thread.handle.joinable())
 		{
-			t.handle.join();
-			WINDUP_Logger::info("Threading", "joined thread '" + t.name + "'", 1);
+			thread.handle.join();
+			WINDUP_Logger::info("Threading", "joined thread '" + thread.name + "'", 1);
 		}
 	}
 
@@ -28,15 +33,21 @@ bool WINDUP_Threading::spawn_thread(std::string name, std::function<void()> fn)
 {
 	std::lock_guard<std::mutex> lock(mtx);
 
+	if (status.f_is_deinit)
+	{
+		WINDUP_Logger::error("Threading", "refused to spawn '" + name + "' engine is in deinitialization phase", 0);
+		return false;
+	}
+
 	try
 	{
-		WINDUP_Thread t;
-		t.name   = std::move(name);
-		t.handle = std::thread(std::move(fn));
+		WINDUP_Thread thread;
+		thread.name   = std::move(name);
+		thread.handle = std::thread(std::move(fn));
 
-		threads.push_back(std::move(t));
+		threads.push_back(std::move(thread));
 
-		WINDUP_Logger::info("Threading", "spawned thread '" + t.name + "'", 1);
+		WINDUP_Logger::info("Threading", "spawned thread '" + thread.name + "'", 1);
 		return true;
 	}
 	catch (const std::system_error &e)

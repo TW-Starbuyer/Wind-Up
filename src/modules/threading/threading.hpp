@@ -1,19 +1,25 @@
 #pragma once
 
+// STL INCLUDES
 #include <string>
 #include <unordered_map>
 #include <functional>
 #include <vector>
 #include <mutex>
 
+// CORE INCLUDES
+#include "../logger/logger.hpp"
+
+// MODULE INCLUDES
+
+// COMMON INCLUDES
 #include "../../common/module.hpp"
 #include "../../common/status.hpp"
 #include "../../common/context.hpp"
-
 #include "../../common/thread.hpp"
-#include "../../logger/logger.hpp"
-
 #include "../../common/configs.hpp"
+
+//----------------------------------------------------------------------------------------------
 
 class WINDUP_Threading : public WINDUP_Module
 {

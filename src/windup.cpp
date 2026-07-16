@@ -14,14 +14,11 @@ void WINDUP_ENGINE::init()
 
 	base_path = SDL_GetBasePath();
 
-	// CORE SYSTEMS
 	WINDUP_Logger::init();
 
-	// MODULES
 	init_modules();
 	windup_ctx.modules = create_modules_ctx();
 
-	// TOOLS
 	commands.init(windup_ctx);
 	windup_ctx.console = &commands;
 
@@ -38,10 +35,21 @@ void WINDUP_ENGINE::deinit()
 {
 	status.f_is_closing = true;
 
+	// Deinitialization in reverse-order
+	modules.levels->deinit();
 	modules.renderer->deinit();
+	modules.io->deinit();
+	modules.ecs->deinit();
+	modules.windowing->deinit();
+	modules.resources->deinit();
+	modules.devices->deinit();
+	modules.profiler->deinit();
+	modules.threading->deinit();
+	modules.time->deinit();
 
 	status.f_is_running = false;
 	status.f_is_deinit = true;
+
 	WINDUP_Logger::task_result("Engine", "Deitialization", status.f_is_deinit);
 }
 
@@ -114,7 +122,7 @@ bool WINDUP_ENGINE::init_modules()
 	modules.profiler = init_module<WINDUP_Profiler>(*windup_ctx.engine_configs);
 	modules.devices = init_module<WINDUP_Devices>(*windup_ctx.engine_configs, *modules.threading);
 	modules.resources = init_module<WINDUP_Resources>(*windup_ctx.engine_configs, *modules.threading, *modules.devices);
-	modules.windowing = init_module<WINDUP_Windowing>(*windup_ctx.engine_configs, *modules.threading);
+	modules.windowing = init_module<WINDUP_Windowing>(*windup_ctx.engine_configs, *modules.devices, *modules.threading);
 	modules.ecs = init_module<WINDUP_ECS>(*windup_ctx.engine_configs, *modules.threading);
 	modules.io = init_module<WINDUP_UserIO>(*windup_ctx.engine_configs, *modules.threading);
 	modules.renderer = init_module<WINDUP_Rendering>(*windup_ctx.engine_configs, *modules.threading, *modules.devices, *modules.resources, *modules.windowing);
@@ -165,7 +173,6 @@ bool WINDUP_ENGINE::init_editor_gui()
     WINDUP_Resources *resources = modules.resources.get();
     WINDUP_Rendering *renderer  = modules.renderer.get();
 
-    // ── One-time setup ───────────────────────────────────────────────────────
     WINDUP_GUIDesc editor_gui_desc;
     editor_gui_desc.name = "editor_gui_style";
     ImGui::StyleColorsDark(&editor_gui_desc.style);                    // baseline
@@ -178,10 +185,9 @@ bool WINDUP_ENGINE::init_editor_gui()
 
     WINDUP_TextureHandle editor_bg_handle = resources->instantiate_texture(editor_bg_desc);
 
-    // upload to the GPU (no-op-safe if instantiate failed — handle is invalid)
+    // GPU upload
     renderer->upload_texture(editor_bg_handle);
 
-    // resolve the GPU texture ONCE here — not per-frame in the lambda
     SDL_GPUTexture *bg_tex = nullptr;
     if (editor_bg_handle.valid())
     {
@@ -193,10 +199,10 @@ bool WINDUP_ENGINE::init_editor_gui()
         WINDUP_Logger::warning("Annihilator", "Editor background texture not available", 0);
     }
 
-    // ── Per-frame editor GUI ─────────────────────────────────────────────────
+    // GUI (very messy, will refactor soon)
     renderer->submit_editor_gui_cmds([this, bg_tex, renderer]() {
 
-        // ── Background (tiled, behind all editor windows) ────────────────────
+        // Background
         if (bg_tex)
         {
             const float tile = 128.0f;
@@ -208,9 +214,6 @@ bool WINDUP_ENGINE::init_editor_gui()
                                  ImVec2(x, y), ImVec2(x + tile, y + tile));
         }
 
-    	// ── Menu Bar ─────────────────────────────────────────────────────────
-  //   	ImGui::SetNextWindowPos(ImVec2(10, 10), ImGuiCond_Always);
-		// ImGui::SetNextWindowSize(ImVec2(1260, 20), ImGuiCond_Always);
     	if (ImGui::BeginMainMenuBar())
 		{
 			if (ImGui::BeginMenu("File"))
@@ -239,19 +242,19 @@ bool WINDUP_ENGINE::init_editor_gui()
 		}
 
 
-    	// ── Play controls ────────────────────────────────────────────────────
+    	// Control buttons
     	ImGui::SetNextWindowPos(ImVec2(800, 40), ImGuiCond_Always);
 		ImGui::SetNextWindowSize(ImVec2(832, 60), ImGuiCond_Always);
 		ImGui::Begin("Toolbar");
 
-			if (ImGui::Button("Play"))
-			{
-				;   // false = game/scene mode
-			}
+			// if (ImGui::Button("Play"))
+			// {
+			//
+			// }
 
 		ImGui::End();
 
-    	// ── Console ──────────────────────────────────────────────────────────
+    	// Developer console
     	ImGui::SetNextWindowPos(ImVec2(50, 860), ImGuiCond_Always);
 		ImGui::SetNextWindowSize(ImVec2(610, 200), ImGuiCond_Always);
     	ImGui::Begin("Developer Console");
@@ -310,13 +313,11 @@ bool WINDUP_ENGINE::init_editor_gui()
 														   e.message.c_str());
 				}
 
-				// auto-scroll only when already pinned to the bottom
 				if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY())
 					ImGui::SetScrollHereY(1.0f);
 
 				ImGui::EndChild();
 
-				// input line
 				static char input_buf[256] = "";
 				ImGui::SetNextItemWidth(-FLT_MIN);
 
@@ -333,7 +334,7 @@ bool WINDUP_ENGINE::init_editor_gui()
 
 		ImGui::End();
 
-        // ── Performance ──────────────────────────────────────────────────────
+        // Performance dashboard
     	ImGui::SetNextWindowPos(ImVec2(50, 450), ImGuiCond_Always);
 		ImGui::SetNextWindowSize(ImVec2(300, 400), ImGuiCond_Always);
     	ImGui::Begin("Performance");
@@ -347,7 +348,7 @@ bool WINDUP_ENGINE::init_editor_gui()
         }
         ImGui::End();
 
-        // ── Configs ──────────────────────────────────────────────────────────
+        // Configs
     	ImGui::SetNextWindowPos(ImVec2(50, 40), ImGuiCond_Always);
 		ImGui::SetNextWindowSize(ImVec2(300, 400), ImGuiCond_Always);
 
@@ -376,7 +377,7 @@ bool WINDUP_ENGINE::init_editor_gui()
         }
         ImGui::End();
 
-        // ── Scene Viewer ─────────────────────────────────────────────────────
+        // Scene viewer
     	ImGui::SetNextWindowPos(ImVec2(800, 110), ImGuiCond_Always);
 		ImGui::SetNextWindowSize(ImVec2(832, 624), ImGuiCond_Always);
         ImGui::Begin("Scene Viewer");

@@ -1,9 +1,24 @@
 #pragma once
 
+// STL INCLUDES
 #include <unordered_map>
 #include <string>
 #include <functional>
 
+// THIRD-PARTY INCLUDES
+#include "imgui.h"
+#include "imgui_impl_sdl3.h"
+#include "imgui_impl_sdlgpu3.h"
+
+// CORE INCLUDES
+#include "../logger/logger.hpp"
+
+// MODULE INCLUDES
+#include "../../modules/devices/devices.hpp"
+#include "../../modules/resources/resources.hpp"
+#include "../../modules/windowing/windowing.hpp"
+
+// COMMON INCLUDES
 #include "../../common/module.hpp"
 #include "../../common/configs.hpp"
 #include "../../common/components.hpp"
@@ -17,14 +32,7 @@
 #include "../../common/render_data.hpp"
 #include "../../common/gui.hpp"
 
-#include "../../modules/devices/devices.hpp"
-#include "../../modules/resources/resources.hpp"
-#include "../../modules/windowing/windowing.hpp"
-
-
-#include "imgui.h"
-#include "imgui_impl_sdl3.h"
-#include "imgui_impl_sdlgpu3.h"
+//----------------------------------------------------------------------------------------------
 
 class WINDUP_Rendering : public WINDUP_Module
 {
@@ -48,6 +56,7 @@ class WINDUP_Rendering : public WINDUP_Module
 		WINDUP_PipelineHandle get_pipeline(const std::string &name);
 		void use_pipeline(WINDUP_PipelineHandle handle);
 		void use_pipeline(const std::string &name);
+		bool destroy_pipeline(WINDUP_PipelineHandle handle);
 
 		bool begin_frame();
 		void end_frame();
@@ -93,9 +102,11 @@ class WINDUP_Rendering : public WINDUP_Module
 		WINDUP_Devices* devices = nullptr;
 		WINDUP_Resources* resources = nullptr;
 		WINDUP_Windowing* windowing = nullptr;
-		WINDUP_Cache<WINDUP_Pipeline, WINDUP_PipelineHandle> pipelines_cache;
+
 		WINDUP_GUIDesc app_ui_desc;
 		WINDUP_GUIDesc editor_ui_desc;
+
+		WINDUP_Cache<WINDUP_Pipeline, WINDUP_PipelineHandle> pipelines_cache;
 		std::vector<WINDUP_DrawCall> render_queue;
 
 		bool init_gui();

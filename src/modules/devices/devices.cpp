@@ -14,8 +14,13 @@ void WINDUP_Devices::init(WINDUP_EngineConfigs& arg_engine_configs, WINDUP_Threa
 
 void WINDUP_Devices::deinit()
 {
-	status.f_is_deinit = true;
+	if (gpu_device)
+	{
+		SDL_DestroyGPUDevice(gpu_device);
+		gpu_device = nullptr;
+	}
 
+	status.f_is_deinit = true;
 	WINDUP_Logger::task_result("Devices", "Deinitialization", status.f_is_deinit);
 }
 

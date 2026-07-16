@@ -1,10 +1,17 @@
 #include "windowing.hpp"
 
-void WINDUP_Windowing::init(WINDUP_EngineConfigs& arg_engine_configs, WINDUP_Threading& arg_threading)
+void WINDUP_Windowing::init(WINDUP_EngineConfigs& arg_engine_configs, WINDUP_Devices& arg_devices, WINDUP_Threading& arg_threading)
 {
 	engine_configs = &arg_engine_configs;
+
+	devices = &arg_devices;
+	threading = &arg_threading;
+
 	WINDUP_WindowDesc window_desc = {
-		configs.init_title, configs.init_width, configs.init_height, configs.init_flags,
+		configs.init_title,
+		configs.init_width,
+		configs.init_height,
+		configs.init_flags,
 	};
 
 	instantiate_window(window_desc);
@@ -18,8 +25,14 @@ void WINDUP_Windowing::init(WINDUP_EngineConfigs& arg_engine_configs, WINDUP_Thr
 
 void WINDUP_Windowing::deinit()
 {
-	status.f_is_deinit = true;
+	if (window)
+	{
+		SDL_ReleaseWindowFromGPUDevice(devices->get_gpu_device(), window);
+		SDL_DestroyWindow(window);                        
+		window = nullptr;
+	}
 
+	status.f_is_deinit = true;
 	WINDUP_Logger::task_result("Windowing", "Deinitialized", status.f_is_deinit);
 }
 

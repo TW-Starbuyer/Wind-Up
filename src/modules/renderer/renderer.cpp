@@ -14,6 +14,7 @@
 void WINDUP_Rendering::init(WINDUP_EngineConfigs& arg_global_configs, WINDUP_Threading& arg_threading, WINDUP_Devices& arg_devices, WINDUP_Resources& arg_resources, WINDUP_Windowing& arg_windowing)
 {
 	engine_configs = &arg_global_configs;
+
 	devices = &arg_devices;
 	resources = &arg_resources;
 	windowing = &arg_windowing;
@@ -37,12 +38,6 @@ void WINDUP_Rendering::init(WINDUP_EngineConfigs& arg_global_configs, WINDUP_Thr
 void WINDUP_Rendering::deinit()
 {
 	WINDUP_GPUDevice *gpu_device = devices->get_gpu_device();
-	WINDUP_Window *window = windowing->get_window();
-
-	SDL_ReleaseGPUTexture(gpu_device, curr_renderer_resources.depth_texture);
-	SDL_ReleaseGPUGraphicsPipeline(gpu_device, curr_frame_state.pipeline);
-	SDL_ReleaseGPUSampler(gpu_device, curr_renderer_resources.default_sampler);
-	SDL_ReleaseWindowFromGPUDevice(gpu_device, window);
 
 	SDL_WaitForGPUIdle(gpu_device);
 
@@ -50,13 +45,17 @@ void WINDUP_Rendering::deinit()
 	ImGui_ImplSDL3_Shutdown();
 	ImGui::DestroyContext();
 
-	if (curr_renderer_resources.scene_target.color)
-		SDL_ReleaseGPUTexture(gpu_device, curr_renderer_resources.scene_target.color);
-	if (curr_renderer_resources.scene_target.depth)
-		SDL_ReleaseGPUTexture(gpu_device, curr_renderer_resources.scene_target.depth);
+	for (auto &[handle, pipeline] : pipelines_cache)
+	{
+		if (pipeline.sdl_pipeline) SDL_ReleaseGPUGraphicsPipeline(gpu_device, pipeline.sdl_pipeline);
+	}
+	pipelines_cache.clear();
 
-
-	SDL_DestroyGPUDevice(gpu_device);
+	if (curr_renderer_resources.default_sampler)    SDL_ReleaseGPUSampler(gpu_device, curr_renderer_resources.default_sampler);
+	if (curr_renderer_resources.fallback_texture)    SDL_ReleaseGPUTexture(gpu_device, curr_renderer_resources.fallback_texture);
+	if (curr_renderer_resources.depth_texture)       SDL_ReleaseGPUTexture(gpu_device, curr_renderer_resources.depth_texture);
+	if (curr_renderer_resources.scene_target.color)  SDL_ReleaseGPUTexture(gpu_device, curr_renderer_resources.scene_target.color);
+	if (curr_renderer_resources.scene_target.depth)  SDL_ReleaseGPUTexture(gpu_device, curr_renderer_resources.scene_target.depth);
 
 	status.f_is_deinit = true;
 
@@ -171,6 +170,15 @@ void WINDUP_Rendering::use_pipeline(const std::string &name)
 	WINDUP_Pipeline &pipeline = pipelines_cache.get_by_name(name);
 	curr_frame_state.pipeline = pipeline.sdl_pipeline;
 	SDL_BindGPUGraphicsPipeline(curr_frame_state.render_pass, curr_frame_state.pipeline);
+}
+
+bool WINDUP_Rendering::destroy_pipeline(WINDUP_PipelineHandle handle)
+{
+	if (!pipelines_cache.has(handle)) return true;
+	WINDUP_Pipeline& pipeline = pipelines_cache.get_by_handle(handle);
+	if (pipeline.sdl_pipeline) SDL_ReleaseGPUGraphicsPipeline(devices->get_gpu_device(), pipeline.sdl_pipeline);
+	pipelines_cache.remove(handle);
+	return true;
 }
 
 //--------------------------------------------------------------------------------

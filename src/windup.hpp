@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+// STL INCLUDES
 #include <cassert>
 #include <memory>
 #include <string>
@@ -8,6 +9,28 @@
 #include <SDL3/SDL.h>
 #include <glm/glm.hpp>
 
+// THIRD-PARTY INCLUDES
+#include "imgui.h"
+#include "imgui_impl_sdl3.h"
+#include "imgui_impl_sdlgpu3.h"
+
+// CORE INCLUDES
+#include "commands/commands.hpp"
+#include "logger/logger.hpp"
+
+// MODULE INCLUDES
+#include "modules/threading/threading.hpp"
+#include "modules/profiler/profiler.hpp"
+#include "modules/windowing/windowing.hpp"
+#include "modules/resources/resources.hpp"
+#include "modules/time/time.hpp"
+#include "modules/devices/devices.hpp"
+#include "modules/ecs/ecs.hpp"
+#include "modules/user_io/user_io.hpp"
+#include "modules/renderer/renderer.hpp"
+#include "modules/levels/levels.hpp"
+
+// COMMON INCLUDES
 #include "common/app_entry.hpp"
 #include "common/alias.hpp"
 #include "common/alias.hpp"
@@ -18,34 +41,16 @@
 #include "common/status.hpp"
 #include "common/modules.hpp"
 
-#include "modules/threading/threading.hpp"
-#include "modules/profiler/profiler.hpp"
-#include "logger/logger.hpp"
-#include "modules/windowing/windowing.hpp"
-#include "modules/resources/resources.hpp"
-#include "modules/time/time.hpp"
-#include "modules/devices/devices.hpp"
-#include "modules/ecs/ecs.hpp"
-#include "modules/user_io/user_io.hpp"
-#include "modules/renderer/renderer.hpp"
-#include "modules/levels/levels.hpp"
-
-#include "commands/commands.hpp"
-
-#include "imgui.h"
-#include "imgui_impl_sdl3.h"
-#include "imgui_impl_sdlgpu3.h"
+//----------------------------------------------------------------------------------------------
 
 class WINDUP_ENGINE
 {
 	public:
 		WINDUP_EngineConfigs engine_configs;
 		WINDUP_EngineStatus status;
-
 		WINDUP_EngineContext windup_ctx;
 
 		WINDUP_Modules modules;
-
 		WINDUP_Commands commands;
 
 		WINDUP_ENGINE() = default;
