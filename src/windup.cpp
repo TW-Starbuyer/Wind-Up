@@ -61,17 +61,17 @@ bool WINDUP_ENGINE::run()
 {
 	init();
 
-	if (loaded_app)
+	if (!loaded_app)
 	{
-		loaded_app->on_run(windup_ctx);
+		WINDUP_Logger::error("Engine", "ERROR: run() called with no app loaded", 0);
+		return false;
 	}
+
+	loaded_app->on_run(windup_ctx);
 
 	while (status.f_is_running)
 	{
-		if (loaded_app)
-		{
-			loaded_app->on_update();
-		}
+		loaded_app->on_update();
 	}
 
 	return true;
@@ -80,7 +80,11 @@ bool WINDUP_ENGINE::run()
 bool WINDUP_ENGINE::quit()
 {
 	status.f_is_running = false;
-	loaded_app->status.f_is_running = false;
+
+	if (loaded_app)
+	{
+		loaded_app->status.f_is_running = false;
+	}
 
 	return true;
 }
@@ -246,11 +250,6 @@ bool WINDUP_ENGINE::init_editor_gui()
     	ImGui::SetNextWindowPos(ImVec2(800, 40), ImGuiCond_Always);
 		ImGui::SetNextWindowSize(ImVec2(832, 60), ImGuiCond_Always);
 		ImGui::Begin("Toolbar");
-
-			// if (ImGui::Button("Play"))
-			// {
-			//
-			// }
 
 		ImGui::End();
 

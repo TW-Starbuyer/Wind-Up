@@ -153,7 +153,7 @@ void Demo::on_ecs_update()
         mvp.view  = view_matrix;
         mvp.proj  = proj_matrix;
 
-        WINDUP_Model cached_model = resources->get_model(mdl.model_handle);
+        WINDUP_Model& cached_model = resources->get_model(mdl.model_handle);
 
         for (auto& cached_mesh_handle : cached_model.desc.mesh_handles)
         {
@@ -164,8 +164,6 @@ void Demo::on_ecs_update()
             renderer->submit_draw_call(draw_call);
         }
     });
-
-
 }
 
 void Demo::on_io_update()
@@ -368,7 +366,8 @@ void Demo::register_app_cmds()
 {
     WINDUP_Commands* console = windup->console;
 
-    console->register_immediate_cmd("-active_camera_pos", [this](auto& args) {
+    console->register_immediate_cmd("-active_camera_pos", [this](auto& args)
+    {
         bool res = false;
         windup->modules.ecs->get_registry().each([&](WINDUP_CameraCmpt& cam, WINDUP_TransformCmpt& trn)
         {
@@ -382,7 +381,8 @@ void Demo::register_app_cmds()
         return res;
     });
 
-    console->register_immediate_cmd("-set_active_camera", [this](auto& args) {
+    console->register_immediate_cmd("-set_active_camera", [this](auto& args)
+    {
         if (args.empty())
         {
             WINDUP_Logger::error("Console", "usage: set_active_camera <entity_name>", 0);
@@ -406,7 +406,8 @@ void Demo::register_app_cmds()
         return true;
     });
 
-    console->register_immediate_cmd("-set_entity_is_visible", [this](auto& args) {
+    console->register_immediate_cmd("-set_entity_is_visible", [this](auto& args)
+    {
         if (args.size() < 2)
         {
             WINDUP_Logger::error("Console", "usage: set_entity_visible <entity_name> <true|false>", 0);
@@ -417,7 +418,7 @@ void Demo::register_app_cmds()
         const std::string& value  = args[1];
 
         bool visible;
-        if      (value == "true")  visible = true;
+        if (value == "true")  visible = true;
         else if (value == "false") visible = false;
         else
         {
@@ -438,7 +439,8 @@ void Demo::register_app_cmds()
         return true;
     });
 
-    console->register_immediate_cmd("-set_entity_pos", [this](auto& args) {
+    console->register_immediate_cmd("-set_entity_pos", [this](auto& args)
+    {
         if (args.size() < 4)
         {
             WINDUP_Logger::error("Console", "usage: set_entity_pos <entity_name> <x> <y> <z>", 1);
@@ -501,6 +503,7 @@ void Demo::set_editor_mode(bool value)
 }
 
 
-WINDUP_App* create_app() {
+WINDUP_App* create_app()
+{
 	return new Demo();
 }

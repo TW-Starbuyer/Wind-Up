@@ -9,7 +9,7 @@ void WINDUP_Commands::init(WINDUP_EngineContext &arg_annihilator)
 {
 	windup = &arg_annihilator;
 
-	windup->modules.threading->spawn_thread("console_input", [this]()
+	windup->modules.threading->spawn_thread("console_input", WINDUP_ThreadRetirementOption::Detach, [this]()
 	{
 		std::string input;
 		while (std::getline(std::cin, input))
@@ -69,7 +69,7 @@ bool WINDUP_Commands::flush_deferred_cmds()
 bool WINDUP_Commands::execute(const std::string &input)
 {
 	auto args = parse(input);
-	if (args.empty()) return "";
+	if (args.empty()) return false;
 
 	std::string cmd_name = args[0];
 	std::vector<std::string> cmd_args(args.begin() + 1, args.end());

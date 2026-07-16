@@ -33,7 +33,6 @@
 // COMMON INCLUDES
 #include "common/app_entry.hpp"
 #include "common/alias.hpp"
-#include "common/alias.hpp"
 #include "common/module.hpp"
 #include "common/components.hpp"
 #include "common/context.hpp"

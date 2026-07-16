@@ -11,6 +11,10 @@ add_executable(Wind-Up
         # Engine
         "src/windup.cpp"
 
+        # Commands
+        "src/commands/commands.cpp"
+
+        # Core
         "src/logger/logger.cpp"
 
         # Modules
@@ -25,9 +29,7 @@ add_executable(Wind-Up
         "src/modules/renderer/renderer.cpp"
         "src/modules/levels/levels.cpp"
 
-        # Commands
-        "src/commands/commands.cpp"
-
+        # App
         "apps/${ACTIVE_APP}/src/${ACTIVE_APP}.cpp"
 )
 
@@ -106,8 +108,6 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(imgui)
 
-# ImGui has no CMakeLists of its own — build core + SDL3 backends as a static lib.
-# Must come after SDL3 is available, since the backends include <SDL3/SDL.h>.
 add_library(imgui STATIC
         "${imgui_SOURCE_DIR}/imgui.cpp"
         "${imgui_SOURCE_DIR}/imgui_draw.cpp"
@@ -131,6 +131,7 @@ target_include_directories(Wind-Up PRIVATE
         "${tinygltf_SOURCE_DIR}"
 )
 
+# ── Link Libraries ───────────────────────────────────────────────────────────
 target_link_libraries(Wind-Up PRIVATE
         SDL3::SDL3
         flecs_static

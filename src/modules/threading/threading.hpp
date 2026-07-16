@@ -32,7 +32,7 @@ class WINDUP_Threading : public WINDUP_Module
 		void init(WINDUP_EngineConfigs& arg_engine_configs);
 		void deinit();
 
-		bool spawn_thread(std::string arg_thread_name, std::function<void()> fn);
+		bool spawn_thread(std::string arg_name, WINDUP_ThreadRetirementOption arg_retirement_option, std::function<void()> fn);
 
 	private:
 		WINDUP_EngineConfigs* engine_configs = nullptr;

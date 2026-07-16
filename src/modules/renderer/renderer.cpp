@@ -21,8 +21,6 @@ void WINDUP_Rendering::init(WINDUP_EngineConfigs& arg_global_configs, WINDUP_Thr
 
 	WINDUP_Window *window = arg_windowing.get_window();
 
-	// load_configs(*resources, "configs/configs_renderer.json");
-
 	bind_window_to_gpu_device();
 	create_depth_texture();
 	create_sampler();
@@ -83,7 +81,6 @@ WINDUP_PipelineHandle WINDUP_Rendering::create_pipeline(WINDUP_PipelineDesc desc
 		WINDUP_Logger::error("Rendering", "Shader has null vert or frag", 0);
 	}
 
-	// Vertex input (hardcoded for E_Vertex)
 	SDL_GPUVertexBufferDescription vb_desc{};
 	vb_desc.slot = 0;
 	vb_desc.pitch = sizeof(WINDUP_Vertex);
@@ -205,7 +202,7 @@ bool WINDUP_Rendering::begin_frame()
 		return false;
 	}
 
-	// ImGui lifecycle — always runs, pairs with Render() in prepare_ui()
+	// ImGui
 	ImGui_ImplSDLGPU3_NewFrame();
 	ImGui_ImplSDL3_NewFrame();
 	ImGui::NewFrame();
@@ -237,19 +234,16 @@ void WINDUP_Rendering::create_scene_target(uint32_t w, uint32_t h)
 
 	if (w == 0 || h == 0)
 	{
-		// panel collapsed or not laid out yet — skip this frame
 		return;
 	}
 
 	WINDUP_SceneTarget &target = curr_renderer_resources.scene_target;
 
-	// Already the right size — nothing to do.
 	if (target.color && target.w == w && target.h == h)
 	{
 		return;
 	}
 
-	// Tolerate small jitter — only recreate on a real size change.
 	if (target.color)
 	{
 		int dw = (int) w - (int) target.w;
@@ -264,8 +258,6 @@ void WINDUP_Rendering::create_scene_target(uint32_t w, uint32_t h)
 		target.depth = nullptr;
 	}
 
-	// Color target — COLOR_TARGET so the scene pass draws into it,
-	// SAMPLER so ImGui can read it for ImGui::Image().
 	SDL_GPUTextureCreateInfo color_info{};
 	color_info.type = SDL_GPU_TEXTURETYPE_2D;
 	color_info.format = SDL_GetGPUSwapchainTextureFormat(gpu_device, window);
@@ -283,7 +275,6 @@ void WINDUP_Rendering::create_scene_target(uint32_t w, uint32_t h)
 		return;
 	}
 
-	// Depth target — D32_FLOAT, panel-sized, matches the color target.
 	SDL_GPUTextureCreateInfo depth_info{};
 	depth_info.type = SDL_GPU_TEXTURETYPE_2D;
 	depth_info.format = SDL_GPU_TEXTUREFORMAT_D32_FLOAT;
@@ -512,7 +503,6 @@ void WINDUP_Rendering::create_depth_texture()
 	auto [w, h] = windowing->get_window_dimensions();
 	if (w <= 0 || h <= 0)
 	{
-		// window minimized or not ready — skip depth target creation this frame
 		WINDUP_Logger::error("Rendering", "Window not ready, skipping depth texture creation", 0);
 		return;
 	}
@@ -865,9 +855,9 @@ void WINDUP_Rendering::begin_base_render_pass()
 	}
 	else
 	{
-		// render straight to the screen
+		// Render directly to screen
 		color_target.texture = curr_frame_state.swapchain;
-		depth_target.texture = curr_renderer_resources.depth_texture;  // window-sized
+		depth_target.texture = curr_renderer_resources.depth_texture;  // Size of window
 	}
 
 	color_target.load_op   = SDL_GPU_LOADOP_CLEAR;
