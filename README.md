@@ -32,3 +32,6 @@ Secret Area-52 Room - https://skfb.ly/oLtSy
 
 ##### Building
 Wind-Up uses the CMake build system for portability. The engine has been tested on x86 CPUs thus far. CMake fetch is used for non-packaged dependencies so it might take a little while at initial build-time. Just clone the repository and build the "Wind-Up" target.
+
+##### Controls
+To toggle editor camera movement press F3, move with W, A, S, D and your mouse. Custom keybindings will be supported in the future. To close the program just press ESCAPE.
